@@ -1,0 +1,6 @@
+framework module DatashieldOneClick {
+  umbrella header "DatashieldOneClick.h"
+  export *
+
+  module * { export * }
+}
