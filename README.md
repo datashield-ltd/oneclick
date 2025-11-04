@@ -74,13 +74,59 @@ if (result["success"] == true) {
 
 Use `Oneclick.onLoginResult` to listen for native login results:
 
+
 ```dart
+Android：
+success：
+{
+"type": "login_success",
+"success": true,
+"token": "token",
+"phone_number": "phoneNumber"
+}
+
+failure:
+{
+"type": "login_failure",
+"success": false,
+"code": "code"
+}
+
+IOS：
+success：
+{
+"success": true,
+"token": "token",
+"phone_number": "phoneNumber"
+}
+
+failure:
+{
+"success": false,
+"code": "code" ,
+"message": "message" ,
+}
+
 subscription = Oneclick.onLoginResult.listen((event) {
-  if (event["success"] == true) {
-    print("✅ Login success: ${event["phone_number"]}");
-  } else {
-    print("❌ Login failed: ${event["code"]}");
-  }
+if (event["type"] == "login_success" && event["success"] == true) {
+// Android login success
+setState(() {
+_result = "✅ Login successful\n📱 Phone number: ${event["phone_number"] ?? ''}\n🔑 Token: ${event["token"] ?? ''}";
+});
+} else if (event["type"] == "login_failure" && event["success"] == false) {
+// Android login failure
+final errorCode = event["code"] ?? 'UNKNOWN_ERROR';
+} else if (event["success"] == true && !event.containsKey("type")) {
+// iOS login success (no type field)
+setState(() {
+_result = "✅ Login successful\n📱 Phone number: ${event["phone_number"] ?? ''}\n🔑 Token: ${event["token"] ?? ''}";
+});
+} else if (event["success"] == false && !event.containsKey("type")) {
+// iOS login failure
+final errorCode = event["code"] ?? 'UNKNOWN_ERROR';
+}
+}, onError: (error) {
+print("❌ Error: $error");
 });
 ```
 
@@ -123,8 +169,10 @@ flutter run example
 - Requires proper integration of native Android SDK
 - Add permissions to `AndroidManifest.xml`:
   ```xml
-  <uses-permission android:name="android.permission.INTERNET" />
-  <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
   ```
 
 #### iOS
